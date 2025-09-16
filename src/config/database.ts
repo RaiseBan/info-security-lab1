@@ -1,6 +1,7 @@
 import { DataSource } from "typeorm";
 import { User } from "../models/User";
 import dotenv from "dotenv";
+import {Order} from "../models/Order";
 dotenv.config({quiet: true});
 
 export const appDataSource = new DataSource({
@@ -10,7 +11,7 @@ export const appDataSource = new DataSource({
     username: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "password",
     database: process.env.DB_NAME || "secure_api_db",
-    entities: [User],
+    entities: [User, Order],
     synchronize: true, // dev
     logging: false,
     migrations: ["src/migrations/*.ts"],

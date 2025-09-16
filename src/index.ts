@@ -8,7 +8,7 @@ import {logger} from "./utils/logger";
 
 import 'reflect-metadata';
 import authRoutes from "./routers/auth.routes";
-
+import apiRoutes from "./routers/api.routes";
 
 dotenv.config({
     quiet: true,
@@ -35,8 +35,9 @@ async function main() {
     }));
     app.use(express.urlencoded({ extended: true }));
 
+
     app.use('/auth', authRoutes);
-    // app.use('/api', apiRoutes);
+    app.use('/api', apiRoutes);
 
 
     app.get('/health', (req, res) => {
