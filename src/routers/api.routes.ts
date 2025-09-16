@@ -1,9 +1,19 @@
 import { Router } from 'express';
 import { apiService } from '../services/api.service';
 import { checkToken } from '../middleware/auth';
+import rateLimit from "express-rate-limit";
+import {sanitizeInput} from "../middleware/validation";
+
+const apiLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    limit: 10, // 100 запросов на IP
+    message: { error: 'Too many API requests, please try again later' },
+});
 
 const router = Router();
 
+
+router.use(apiLimiter);
 router.use(checkToken);
 
 router.get('/orders', async (req: any, res, next) => {
