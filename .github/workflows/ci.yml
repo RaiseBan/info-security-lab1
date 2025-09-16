@@ -43,6 +43,7 @@ jobs:
             --scan . \
             --format ALL \
             --out dependency-check-report \
+            --noupdate \
             || true
 
       - name: Upload npm audit report
