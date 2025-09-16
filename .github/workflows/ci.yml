@@ -27,18 +27,34 @@ jobs:
         run: npm run build
 
       - name: Run npm audit (SAST)
-        run: npm audit --audit-level=moderate
+        run: npm audit --audit-level=moderate --json > npm-audit-report.json || true
 
       - name: Run Snyk test (SCA)
         uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high
+          args: --severity-threshold=high --json-file-output=snyk-report.json --sarif-file-output=snyk.sarif
 
-      - name: Run Snyk monitor
-        uses: snyk/actions/node@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Upload npm audit report
+        uses: actions/upload-artifact@v4
         with:
-          command: monitor
+          name: npm-audit-report
+          path: npm-audit-report.json
+
+      - name: Upload Snyk JSON report
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-json-report
+          path: snyk-report.json
+
+      - name: Upload Snyk SARIF report
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-sarif-report
+          path: snyk.sarif
+
+      - name: Upload to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk.sarif
