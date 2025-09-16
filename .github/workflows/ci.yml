@@ -4,14 +4,15 @@ on:
   push:
     branches: [ master, develop ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, develop ]
 
 jobs:
   security-scan:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -25,37 +26,23 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: npm audit (SAST)
-        run: |
-          npm audit --audit-level=moderate --production
-          npm audit --json --production > npm-audit-report.json || true
-
-      - name: Install OWASP Dependency Check
-        run: |
-          wget -q https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
-          unzip -q dependency-check-8.4.0-release.zip
+      - name: Run npm audit (SAST)
+        run: npm audit --audit-level=moderate
 
       - name: Run OWASP Dependency Check (SCA)
         run: |
-          mkdir -p dependency-check-report
-          ./dependency-check/bin/dependency-check.sh \
-            --project "secure-api" \
-            --scan . \
-            --format ALL \
-            --out dependency-check-report \
-            --noupdate \
-            || true
+          docker run --rm \
+          -v "${{ github.workspace }}":/src \
+          -v "${{ runner.temp }}/odc-reports":/reports \
+          owasp/dependency-check:latest \
+          --project "MyNodeApp" \
+          --scan /src \
+          --format "HTML" \
+          --out /reports
 
-      - name: Upload npm audit report
+      - name: Upload OWASP Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: npm-audit-report
-          path: npm-audit-report.json
-
-      - name: Upload OWASP report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: owasp-dependency-check
-          path: dependency-check-report/
+          name: dependency-check-report
+          path: ${{ runner.temp }}/odc-reports
