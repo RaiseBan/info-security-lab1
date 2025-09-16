@@ -9,6 +9,10 @@ on:
 jobs:
   security-scan:
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
 
     steps:
       - name: Checkout code
@@ -29,32 +33,23 @@ jobs:
       - name: Run npm audit (SAST)
         run: npm audit --audit-level=moderate --json > npm-audit-report.json || true
 
-      - name: Run Snyk test (SCA)
+      - name: Run Snyk test with SARIF output
         uses: snyk/actions/node@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --severity-threshold=high --json-file-output=snyk-report.json --sarif-file-output=snyk.sarif
 
-      - name: Upload npm audit report
-        uses: actions/upload-artifact@v4
-        with:
-          name: npm-audit-report
-          path: npm-audit-report.json
-
-      - name: Upload Snyk JSON report
-        uses: actions/upload-artifact@v4
-        with:
-          name: snyk-json-report
-          path: snyk-report.json
-
-      - name: Upload Snyk SARIF report
-        uses: actions/upload-artifact@v4
-        with:
-          name: snyk-sarif-report
-          path: snyk.sarif
-
-      - name: Upload to GitHub Code Scanning
+      - name: Upload Snyk SARIF to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk.sarif
+
+      - name: Upload all security reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            npm-audit-report.json
+            snyk-report.json
+            snyk.sarif
