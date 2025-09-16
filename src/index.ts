@@ -7,6 +7,7 @@ import {appDataSource} from "./config/database";
 import {logger} from "./utils/logger";
 
 import 'reflect-metadata';
+import authRoutes from "./routers/auth.routes";
 
 
 dotenv.config({
@@ -34,6 +35,10 @@ async function main() {
     }));
     app.use(express.urlencoded({ extended: true }));
 
+    app.use('/auth', authRoutes);
+    // app.use('/api', apiRoutes);
+
+
     app.get('/health', (req, res) => {
         res.json({
             status: 'OK',
@@ -45,7 +50,7 @@ async function main() {
     app.use((req, res) => {
         res.status(404).json({
             error: 'Route not found',
-            path: req.originalUrl
+            path: req.path
         });
     });
 
