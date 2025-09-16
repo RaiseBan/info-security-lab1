@@ -2,9 +2,9 @@ name: Security CI/CD Pipeline
 
 on:
   push:
-    branches: [ master, develop ]
+    branches: [master, develop]
   pull_request:
-    branches: [ master, develop ]
+    branches: [master, develop]
 
 jobs:
   security-scan:
@@ -29,20 +29,16 @@ jobs:
       - name: Run npm audit (SAST)
         run: npm audit --audit-level=moderate
 
-      - name: Run OWASP Dependency Check (SCA)
-        run: |
-          docker run --rm \
-          -v "${{ github.workspace }}":/src \
-          -v "${{ runner.temp }}/odc-reports":/reports \
-          owasp/dependency-check:latest \
-          --project "MyNodeApp" \
-          --scan /src \
-          --format "HTML" \
-          --out /reports
-
-      - name: Upload OWASP Report
-        uses: actions/upload-artifact@v4
-        if: always()
+      - name: Run Snyk test (SCA)
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          name: dependency-check-report
-          path: ${{ runner.temp }}/odc-reports
+          args: --severity-threshold=high
+
+      - name: Run Snyk monitor
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: monitor
