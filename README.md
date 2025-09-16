@@ -86,13 +86,13 @@ curl -X GET http://localhost:8080/health
 ## Скриншоты отчетов SAST/SCA
 
 ### GitHub Actions Pipeline
-![GitHub Actions Success](screenshots/githubActions.jpg)
+![GitHub Actions Success](screenshots/githubAction.jpg)
 
 ### npm audit отчет
 ![npm audit report](screenshots/audit-report.jpg)
 
 ### Snyk отчет
-![npm audit report](screenshots/snyk-report)
+![npm audit report](screenshots/snyk-report.jpg)
 
 ### Snyk Security отчет  
 ![Snyk report](screenshots/snyk-scan-alerts.jpg)
