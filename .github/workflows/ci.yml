@@ -37,6 +37,7 @@ jobs:
 
       - name: Run OWASP Dependency Check (SCA)
         run: |
+          mkdir -p dependency-check-report
           ./dependency-check/bin/dependency-check.sh \
             --project "secure-api" \
             --scan . \
