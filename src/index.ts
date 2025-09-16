@@ -17,9 +17,9 @@ const app = express()
 async function main() {
     try {
         await appDataSource.initialize();
-        console.log("Database initialized")
+        logger.info("Initializing database...");
     }catch (error) {
-        console.error(error)
+        logger.error(error);
     }
 
 
